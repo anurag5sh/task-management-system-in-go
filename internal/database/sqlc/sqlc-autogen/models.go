@@ -6,22 +6,23 @@ package database
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Task struct {
 	ID          int64
-	Title       sql.NullString
-	Description sql.NullString
-	Status      sql.NullString
-	CreatedAt   sql.NullTime
+	Title       string
+	Description string
+	Status      string
+	CreatedAt   time.Time
 	UpdatedAt   sql.NullTime
-	UserID      sql.NullInt64
+	UserID      int64
 }
 
 type User struct {
 	ID           int64
-	Username     sql.NullString
-	PasswordHash sql.NullString
+	Username     string
+	PasswordHash string
 	Email        sql.NullString
-	CreatedAt    sql.NullTime
+	CreatedAt    time.Time
 }

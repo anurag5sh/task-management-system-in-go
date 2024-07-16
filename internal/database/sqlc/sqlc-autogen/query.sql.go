@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const createUser = `-- name: CreateUser :exec
@@ -18,10 +19,10 @@ VALUES (?, ?, ?, ?)
 `
 
 type CreateUserParams struct {
-	Username     sql.NullString
-	PasswordHash sql.NullString
+	Username     string
+	PasswordHash string
 	Email        sql.NullString
-	CreatedAt    sql.NullTime
+	CreatedAt    time.Time
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
@@ -40,9 +41,9 @@ from users
 where username = ?
 `
 
-func (q *Queries) GetUserPassword(ctx context.Context, username sql.NullString) (sql.NullString, error) {
+func (q *Queries) GetUserPassword(ctx context.Context, username string) (string, error) {
 	row := q.db.QueryRowContext(ctx, getUserPassword, username)
-	var password_hash sql.NullString
+	var password_hash string
 	err := row.Scan(&password_hash)
 	return password_hash, err
 }

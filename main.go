@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"sync"
+	"task-management-system/internal/database"
 	"task-management-system/internal/server"
 )
 
@@ -22,8 +23,12 @@ func main() {
 	//	fmt.Println("Error starting server: %w", err)
 	//	os.Exit(1)
 	//}
-
-	server.CreateRoutes()
+	db, err := database.NewDatabase()
+	if err != nil {
+		fmt.Println("Error connecting to database: %w", err)
+		os.Exit(1)
+	}
+	server.CreateRoutes(db)
 
 	var wg sync.WaitGroup
 	wg.Add(1)
