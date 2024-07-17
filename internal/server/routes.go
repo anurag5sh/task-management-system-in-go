@@ -13,4 +13,5 @@ func CreateRoutes(db *database.Database) {
 
 func createUserRoutes(db *database.Database) {
 	http.HandleFunc("/login", user.LoginHandler(db))
+	http.HandleFunc("/register", user.RegisterHandler(db))
 }
