@@ -63,7 +63,13 @@ func LoginHandler(db *database.Database) ReqHandler {
 			fmt.Println("Unable to sign JWT")
 		}
 
-		fmt.Println(s)
+		w.Header().Set("Authorization", "Bearer "+s)
+
+		if _, err = io.WriteString(w, fmt.Sprintf("Logged in successfully")); err != nil {
+			fmt.Printf("\nUnable to send response %s", err)
+			w.WriteHeader(500)
+			return
+		}
 	}
 }
 
@@ -116,7 +122,7 @@ func RegisterHandler(db *database.Database) ReqHandler {
 
 		queries := dbQuery.New(db.Db)
 		err = queries.CreateUser(db.Ctx, dbQuery.CreateUserParams{Username: userData["username"],
-			PasswordHash: passwordHash, Email: sql.NullString{String: userData["email"]}, CreatedAt: time.Now()})
+			PasswordHash: passwordHash, Email: sql.NullString{String: userData["email"], Valid: true}, CreatedAt: time.Now()})
 		if err != nil {
 			w.WriteHeader(400)
 			if _, err := io.WriteString(w, fmt.Sprintf("Error in creating user: %s", err)); err != nil {
