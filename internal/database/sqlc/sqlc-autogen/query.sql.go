@@ -11,6 +11,32 @@ import (
 	"time"
 )
 
+const createTask = `-- name: CreateTask :exec
+INSERT INTO tasks(title, description, status, user_id, created_at, updated_at)
+VALUES (?, ?, ?, ?, ?, ?)
+`
+
+type CreateTaskParams struct {
+	Title       string
+	Description string
+	Status      string
+	UserID      int64
+	CreatedAt   time.Time
+	UpdatedAt   sql.NullTime
+}
+
+func (q *Queries) CreateTask(ctx context.Context, arg CreateTaskParams) error {
+	_, err := q.db.ExecContext(ctx, createTask,
+		arg.Title,
+		arg.Description,
+		arg.Status,
+		arg.UserID,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
 const createUser = `-- name: CreateUser :exec
 ;
 
@@ -35,15 +61,111 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const deleteTask = `-- name: DeleteTask :exec
+DELETE FROM tasks WHERE id = ?
+`
+
+func (q *Queries) DeleteTask(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteTask, id)
+	return err
+}
+
+const getAllTasks = `-- name: GetAllTasks :many
+SELECT id, title, description, status, created_at, updated_at, user_id FROM tasks where user_id = ?
+`
+
+func (q *Queries) GetAllTasks(ctx context.Context, userID int64) ([]Task, error) {
+	rows, err := q.db.QueryContext(ctx, getAllTasks, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Task
+	for rows.Next() {
+		var i Task
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTask = `-- name: GetTask :one
+SELECT id, title, description, status, created_at, updated_at, user_id FROM tasks where id = ? and user_id = ?
+`
+
+type GetTaskParams struct {
+	ID     int64
+	UserID int64
+}
+
+func (q *Queries) GetTask(ctx context.Context, arg GetTaskParams) (Task, error) {
+	row := q.db.QueryRowContext(ctx, getTask, arg.ID, arg.UserID)
+	var i Task
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
+	)
+	return i, err
+}
+
 const getUserPassword = `-- name: GetUserPassword :one
-SELECT password_hash
+SELECT id, password_hash
 from users
 where username = ?
 `
 
-func (q *Queries) GetUserPassword(ctx context.Context, username string) (string, error) {
+type GetUserPasswordRow struct {
+	ID           int64
+	PasswordHash string
+}
+
+func (q *Queries) GetUserPassword(ctx context.Context, username string) (GetUserPasswordRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserPassword, username)
-	var password_hash string
-	err := row.Scan(&password_hash)
-	return password_hash, err
+	var i GetUserPasswordRow
+	err := row.Scan(&i.ID, &i.PasswordHash)
+	return i, err
+}
+
+const updateTask = `-- name: UpdateTask :exec
+UPDATE tasks SET title = ?, description = ?, status = ?, updated_at = ? where id = ?
+`
+
+type UpdateTaskParams struct {
+	Title       string
+	Description string
+	Status      string
+	UpdatedAt   sql.NullTime
+	ID          int64
+}
+
+func (q *Queries) UpdateTask(ctx context.Context, arg UpdateTaskParams) error {
+	_, err := q.db.ExecContext(ctx, updateTask,
+		arg.Title,
+		arg.Description,
+		arg.Status,
+		arg.UpdatedAt,
+		arg.ID,
+	)
+	return err
 }

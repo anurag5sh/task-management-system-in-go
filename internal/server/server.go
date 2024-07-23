@@ -1,7 +1,8 @@
 package server
 
+import "net/http"
+
 type IServer interface {
 	SetPort(port int)
-	StartServer() error
-	CreateServer() error
+	StartServer(handler *http.Handler) error
 }

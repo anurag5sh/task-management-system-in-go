@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"io"
 	"net/http"
+	"os"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -15,9 +16,7 @@ import (
 	dbQuery "task-management-system/internal/database/sqlc/sqlc-autogen"
 )
 
-type ReqHandler func(w http.ResponseWriter, r *http.Request)
-
-func LoginHandler(db *database.Database) ReqHandler {
+func LoginHandler(db *database.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Login handler called")
 
@@ -38,9 +37,9 @@ func LoginHandler(db *database.Database) ReqHandler {
 		password := loginData["password"]
 
 		queries := dbQuery.New(db.Db)
-		userPasswordHash, err := queries.GetUserPassword(db.Ctx, username)
+		user, err := queries.GetUserPassword(db.Ctx, username)
 
-		if err = bcrypt.CompareHashAndPassword([]byte(userPasswordHash), []byte(password)); err != nil {
+		if err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
 			w.WriteHeader(404)
 			_, err := io.WriteString(w, "Wrong username or password")
 			if err != nil {
@@ -56,8 +55,15 @@ func LoginHandler(db *database.Database) ReqHandler {
 			s   string
 		)
 
-		key = []byte("mykey")
-		t = jwt.New(jwt.SigningMethodHS256)
+		JWT_SECRET := os.Getenv("TMS_JWT_SECRET")
+		if JWT_SECRET == "" {
+			JWT_SECRET = "mykey"
+		}
+		key = []byte(JWT_SECRET)
+		t = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"uid": user.ID,
+			"exp": time.Now().Add(time.Minute * 60).Unix(),
+		})
 		s, err = t.SignedString(key)
 		if err != nil {
 			fmt.Println("Unable to sign JWT")
@@ -83,7 +89,7 @@ func hashPassword(password string) (string, error) {
 	return string(hash), nil
 }
 
-func RegisterHandler(db *database.Database) ReqHandler {
+func RegisterHandler(db *database.Database) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userData := make(map[string]string)
 		body, err := io.ReadAll(r.Body)
