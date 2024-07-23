@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+
 	"task-management-system/internal/database"
 	sqlc "task-management-system/internal/database/sqlc/sqlc-autogen"
 	"task-management-system/internal/model"
@@ -28,8 +29,8 @@ func GetAllTasks(db *database.Database) http.HandlerFunc {
 			return
 		}
 
-		response, _ := json.Marshal(tasks)
-		_, _ = w.Write(response)
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(tasks)
 	}
 }
 
