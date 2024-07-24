@@ -147,6 +147,17 @@ func (q *Queries) GetUserPassword(ctx context.Context, username string) (GetUser
 	return i, err
 }
 
+const isTaskExist = `-- name: IsTaskExist :one
+SELECT EXISTS(SELECT 1 FROM tasks where id = ?)
+`
+
+func (q *Queries) IsTaskExist(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, isTaskExist, id)
+	var column_1 int64
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const updateTask = `-- name: UpdateTask :exec
 UPDATE tasks SET title = ?, description = ?, status = ?, updated_at = ? where id = ?
 `

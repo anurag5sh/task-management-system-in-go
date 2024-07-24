@@ -17,6 +17,9 @@ SELECT * FROM tasks where id = ? and user_id = ?;
 INSERT INTO tasks(title, description, status, user_id, created_at, updated_at)
 VALUES (?, ?, ?, ?, ?, ?);
 
+-- name: IsTaskExist :one
+SELECT EXISTS(SELECT 1 FROM tasks where id = ?);
+
 -- name: UpdateTask :exec
 UPDATE tasks SET title = ?, description = ?, status = ?, updated_at = ? where id = ?;
 

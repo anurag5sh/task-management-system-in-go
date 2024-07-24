@@ -22,6 +22,6 @@ func createUserRoutes(mux *http.ServeMux, db *database.Database) {
 func createTaskRoutes(mux *http.ServeMux, db *database.Database) {
 	mux.HandleFunc("GET /tasks", middleware.CheckAuth(task.GetAllTasks(db)))
 	mux.HandleFunc("POST /tasks", middleware.CheckAuth(task.CreateTask(db)))
-	mux.HandleFunc("GET /tasks/:id", middleware.CheckAuth(task.GetTask(db)))
-	mux.HandleFunc("PUT /tasks/:id", middleware.CheckAuth(task.UpdateTask(db)))
+	mux.HandleFunc("GET /tasks/{id}", middleware.CheckAuth(task.GetTask(db)))
+	mux.HandleFunc("PUT /tasks/{id}", middleware.CheckAuth(task.UpdateTask(db)))
 }
