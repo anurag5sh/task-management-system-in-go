@@ -12,8 +12,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"task-management-system/internal/database"
-	dbQuery "task-management-system/internal/database/sqlc/sqlc-autogen"
+	"github.com/anurag5sh/task-management-system-in-go/internal/database"
+	dbQuery "github.com/anurag5sh/task-management-system-in-go/internal/database/sqlc/sqlc-autogen"
 )
 
 func LoginHandler(db *database.Database) http.HandlerFunc {

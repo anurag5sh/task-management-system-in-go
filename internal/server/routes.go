@@ -2,10 +2,10 @@ package server
 
 import (
 	"net/http"
-	"task-management-system/internal/database"
-	"task-management-system/internal/middleware"
-	"task-management-system/internal/task"
-	"task-management-system/internal/user"
+	"github.com/anurag5sh/task-management-system-in-go/internal/database"
+	"github.com/anurag5sh/task-management-system-in-go/internal/middleware"
+	"github.com/anurag5sh/task-management-system-in-go/internal/task"
+	"github.com/anurag5sh/task-management-system-in-go/internal/user"
 )
 
 func CreateRoutes(hs *HttpServer, db *database.Database) http.Handler {

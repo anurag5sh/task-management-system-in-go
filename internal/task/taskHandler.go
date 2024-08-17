@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"time"
 
-	"task-management-system/internal/database"
-	sqlc "task-management-system/internal/database/sqlc/sqlc-autogen"
-	"task-management-system/internal/model"
+	"github.com/anurag5sh/task-management-system-in-go/internal/database"
+	sqlc "github.com/anurag5sh/task-management-system-in-go/internal/database/sqlc/sqlc-autogen"
+	"github.com/anurag5sh/task-management-system-in-go/internal/model"
 )
 
 func GetAllTasks(db *database.Database) http.HandlerFunc {

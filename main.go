@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"sync"
-	"task-management-system/internal/database"
-	"task-management-system/internal/server"
+	"github.com/anurag5sh/task-management-system-in-go/internal/database"
+	"github.com/anurag5sh/task-management-system-in-go/internal/server"
 )
 
 const port = 8080

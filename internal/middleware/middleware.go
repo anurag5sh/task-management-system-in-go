@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"task-management-system/internal/model"
+	"github.com/anurag5sh/task-management-system-in-go/internal/model"
 )
 
 func CheckAuth(next http.Handler) http.HandlerFunc {
